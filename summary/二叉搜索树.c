@@ -1,4 +1,3 @@
-//二叉搜索树的实现与基本的API
 //shenlei 2015 09 20
 #include<stdio.h>
 #include<stdlib.h>
@@ -23,25 +22,37 @@ BSTInsert(BSTree *tree, Elem elem) {
 		BSTInsert(&((*tree)->rchild), elem);
 	}
 }
-//一次查找到目的节点及其父节点，特别适合有插入删除操作的情况；对链表也同样适用
-void BSTFindChildandFather(BSTree tree_father, BSTree tree,Elem elem,BSTree *father,BSTree *child) {
-	if (tree->data == elem) {
-		*father = tree_father;
+//BST的元素查找，如果找到则返回指针，未找到返回NULL
+void BSTFind(BSTree tree, Elem elem,BSTree *child) {
+	if (tree->data == elem)
 		*child = tree;
-		return 0;
-	}
-	if (tree == NULL) {
-		*father = tree_father;
-		*child = NULL;
-		return 0;
-	}
 	if (tree->data > elem)
-		BSTFindChildandFather(tree->lchild, elem, child);
+	 BSTFind(tree->lchild, elem, child);
 	if (tree->data < elem)
-		BSTFindChildandFather(tree->rchild, elem, child);
+	 BSTFind(tree->rchild, elem, child);
 }
 
-//获取一个节点的最右子节点
+//BST父节点查找，未找到返回NULL
+BSTree BSTFindFather(BSTree bst, Elem elem, BSTNode *f1, BSTree *f){
+//f1为中间参数，用于求f,初始设为NULL，其目的是跟踪查找路径上访问的当前节点的父节点（即上一个访问节点）{
+	if (bst == NULL)
+	{
+		*f = NULL;
+		return NULL;
+	}
+	else if (elem == bst->data)
+	{
+		*f = f1;
+		return bst;
+	}
+	else if (elem < bst->data)
+		 BSTFindFather(bst->lchild, elem, bst, f);
+	else
+		 BSTFindFather(bst->rchild, elem, bst, f);
+}
+
+
+//查找最右节点
 BSTree RightTree(BSTree tree) {
 	if (!tree->rchild)
 		return tree;
@@ -53,10 +64,10 @@ BSTree RightTree(BSTree tree) {
 
 BSTDelete(BSTree *tree, Elem elem) {
 	BSTree child = NULL; BSTree father = NULL;
-	BSTFindChildandFather(NULL,*tree, elem, ,&father,&child);
+	BSTFind(*tree, elem, &child);
 	if (child) {
 		BSTFindFather(*tree, elem,NULL, &father);
-		//lchild=rchild=NULL,则直接删除
+		//lchild=rchild=NULL,直接删除
 		if (child->lchild == NULL&&child->rchild == NULL) {
 			free(child);
 			father->lchild = father->rchild = NULL;
