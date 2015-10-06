@@ -7,7 +7,7 @@ typedef struct BSTNode {
 	Elem data;
 	struct  BSTNode* lchild;
 	struct  BSTNode* rchild;
-}BSTNode,*BSTree;
+}BSTNode, *BSTree;
 
 BSTInsert(BSTree *tree, Elem elem) {
 	if (*tree == NULL) {
@@ -24,35 +24,22 @@ BSTInsert(BSTree *tree, Elem elem) {
 	}
 }
 //BST的元素查找，如果找到则返回指针，未找到返回NULL
-void BSTFind(BSTree tree, Elem elem,BSTree *child) {
-	if (tree->data == elem)
+int BSTFindChildandFather(BSTree tree_father, BSTree tree, Elem elem, BSTree *father, BSTree *child) {
+	if (tree->data == elem) {
+		*father = tree_father;
 		*child = tree;
+		return 0;
+	}
+	if (tree == NULL) {
+		*father = tree_father;
+		*child = NULL;
+		return 0;
+	}
 	if (tree->data > elem)
-	 BSTFind(tree->lchild, elem, child);
+		BSTFindChildandFather(tree, tree->lchild, elem, father, child);
 	if (tree->data < elem)
-	 BSTFind(tree->rchild, elem, child);
+		BSTFindChildandFather(tree, tree->rchild, elem, father, child);
 }
-
-//BST元素查找，返回该节点的父节点的指针，如果未找到则返回NULL
-BSTree BSTFindFather(BSTree bst, Elem elem, BSTNode *f1, BSTree *f)
-//f1为中间参数，用于求f,初始设为NULL，其目的是跟踪查找路径上访问的当前节点的父节点（即上一个访问节点）
-{
-	if (bst == NULL)
-	{
-		*f = NULL;
-		return NULL;
-	}
-	else if (elem == bst->data)
-	{
-		*f = f1;
-		return bst;
-	}
-	else if (elem < bst->data)
-		 BSTFindFather(bst->lchild, elem, bst, f);
-	else
-		 BSTFindFather(bst->rchild, elem, bst, f);
-}
-
 
 //获取一个节点的最右子节点
 BSTree RightTree(BSTree tree) {
@@ -66,9 +53,8 @@ BSTree RightTree(BSTree tree) {
 
 BSTDelete(BSTree *tree, Elem elem) {
 	BSTree child = NULL; BSTree father = NULL;
-	BSTFind(*tree, elem, &child);
+	BSTFindChildandFather(NULL, *tree, elem, &father, &child);
 	if (child) {
-		BSTFindFather(*tree, elem,NULL, &father);
 		//lchild=rchild=NULL,则直接删除
 		if (child->lchild == NULL&&child->rchild == NULL) {
 			free(child);
@@ -113,7 +99,7 @@ BSTDelete(BSTree *tree, Elem elem) {
 					}
 				}
 			}
-				}
+		}
 
 	}
 }
@@ -132,22 +118,22 @@ BSTMidTravserse(BSTree tree) {
 	}
 }
 int max = 0;
-int BSTDepth(BSTree tree,int i) {
+int BSTDepth(BSTree tree, int i) {
 	if (tree != NULL) {
-		if(i+1>max){
+		if (i + 1>max) {
 			max = i + 1;
 		}
 		BSTDepth(tree->lchild, i + 1);
 		BSTDepth(tree->rchild, i + 1);
 		return max;
 	}
-	
+
 }
 
 void Switch(int* x, int* y) {
 	int tmp = *x;
-	 *x = *y;
-	 *y = tmp;
+	*x = *y;
+	*y = tmp;
 }
 
 int Partition(int a[], int low, int high) {
@@ -166,23 +152,23 @@ int Partition(int a[], int low, int high) {
 Qsort(int a[], int low, int high) {
 	if (low < high) {
 		int pk = Partition(a, low, high);
-		Qsort(a, low, pk-1);
-		Qsort(a, pk+1, high);
+		Qsort(a, low, pk - 1);
+		Qsort(a, pk + 1, high);
 	}
 }
 
 int main(void) {
 	BSTree tree = NULL;
-	int a[9]= { 16,8,4,3,6,10,9,46,97 };
+	int a[9] = { 16,8,4,3,6,10,9,46,97 };
 	for (int i = 0; i < 9; i++) {
 		BSTInsert(&tree, a[i]);
 	}
-	BSTDelete(&tree, 16);
+	BSTDelete(&tree, 3);
 	BSTMidTravserse(tree);
 	//int max = BSTDepth(tree,0);
 	//printf("\nMaxBSTDepth = %d \n", max);
 	//Qsort(a, 0, 5);
 	/*for (int i = 0; i < 6; i++) {
-		printf("%d ", a[i]);
+	printf("%d ", a[i]);
 	}*/
 }
